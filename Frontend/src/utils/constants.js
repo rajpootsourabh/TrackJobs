@@ -1,5 +1,21 @@
 // API Configuration
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.trakjobs.com/api/v1';
+// In production (Netlify/Vercel), use the actual API URL
+// In development, use proxy or env variable
+const getApiBaseUrl = () => {
+  // If env variable is set and it's a full URL, use it
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl && envUrl.startsWith('http')) {
+    return envUrl;
+  }
+  // For production builds, always use the production API
+  if (import.meta.env.PROD) {
+    return 'https://api.trakjobs.com/api/v1';
+  }
+  // For development, use env variable or fallback
+  return envUrl || 'https://api.trakjobs.com/api/v1';
+};
+
+export const API_BASE_URL = getApiBaseUrl();
 
 // Application Name
 export const APP_NAME = 'TrakJobs';

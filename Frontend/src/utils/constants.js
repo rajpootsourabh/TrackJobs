@@ -23,10 +23,15 @@ export const APP_NAME = 'TrakJobs';
 // Navigation Items
 export const NAV_ITEMS = [
   { path: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
-  { path: '/clients', label: 'Clients', icon: 'people' },
-  { path: '/quotes', label: 'Quotes', icon: 'description' },
-  { path: '/jobs', label: 'Jobs', icon: 'work' },
-  { path: '/schedule', label: 'Schedule', icon: 'calendar' },
+  { path: '/clients', label: 'Clients', icon: 'clients' },
+  { path: '/quotes', label: 'Quotes', icon: 'quotes' },
+  { path: '/jobs', label: 'Jobs', icon: 'jobs' },
+  { path: '/schedule', label: 'Schedule', icon: 'schedule' },
+  { path: '/invoices', label: 'Invoices', icon: 'invoices' },
+  { path: '/timesheets', label: 'Timesheets', icon: 'timesheets' },
+  { path: '/online-booking', label: 'Online Booking', icon: 'booking' },
+  { path: '/reports', label: 'Reports', icon: 'reports' },
+  { path: '/settings', label: 'Settings', icon: 'settings' },
 ];
 
 // Job Status Options
@@ -69,11 +74,14 @@ export const SCHEDULE_STATUS = {
 
 // Dummy Data for Development
 export const DUMMY_CLIENTS = [
-  { id: 1, name: 'John Smith', email: 'john@example.com', phone: '555-0101', company: 'Smith Corp', status: 'active', contactPerson: 'John Smith' },
-  { id: 2, name: 'Sarah Johnson', email: 'sarah@example.com', phone: '555-0102', company: 'Johnson LLC', status: 'active', contactPerson: 'Sarah Johnson' },
-  { id: 3, name: 'Mike Davis', email: 'mike@example.com', phone: '555-0103', company: 'Davis Industries', status: 'inactive', contactPerson: 'Mike Davis' },
-  { id: 4, name: 'Emily Brown', email: 'emily@example.com', phone: '555-0104', company: 'Brown & Co', status: 'active', contactPerson: 'Emily Brown' },
-  { id: 5, name: 'David Wilson', email: 'david@example.com', phone: '555-0105', company: 'Wilson Tech', status: 'active', contactPerson: 'David Wilson' },
+  { id: 1, name: 'Amit Verma', email: 'amit.verma@brighttech.solutions.in', phone: '+91 9876543210', company: 'BrightTech Solutions', businessType: 'Technology Sector', status: 'active', contactPerson: 'Amit Verma', category: 'Regular' },
+  { id: 2, name: 'Priya Malhotra', email: 'priya.malhotra@sunrise.venture.com', phone: '+91 9876543211', company: 'Sunrise Ventures', businessType: 'Technology Sector', status: 'active', contactPerson: 'Priya Malhotra', category: 'Regular' },
+  { id: 3, name: 'Rajesh Kumar', email: 'rajesh.kumar@titanent.in', phone: '+91 9876543212', company: 'Titan Enterprises', businessType: 'Technology Sector', status: 'active', contactPerson: 'Rajesh Kumar', category: 'Enterprise' },
+  { id: 4, name: 'Sneha Arora', email: 'sneha.arora@globalsoft.inecr.com', phone: '+91 9876543213', company: 'GlobalSoft Inc.', businessType: 'Technology Sector', status: 'active', contactPerson: 'Sneha Arora', category: 'Premium' },
+  { id: 5, name: 'Akash Patel', email: 'akash.patel@elitebuild.in', phone: '+91 9876543214', company: 'EliteBuild Constructions', businessType: 'Technology Sector', status: 'active', contactPerson: 'Akash Patel', category: 'Regular' },
+  { id: 6, name: 'Kiran Shah', email: 'kiran.shah@nexawebsol.stions.com', phone: '+91 9876543215', company: 'Nexa Web Solutions', businessType: 'Technology Sector', status: 'active', contactPerson: 'Kiran Shah', category: 'Regular' },
+  { id: 7, name: 'Neha Joshi', email: 'neha.joshi@greenlesfitra.traes.com', phone: '+91 9876543216', company: 'GreenLeaf Traders', businessType: 'Technology Sector', status: 'active', contactPerson: 'Neha Joshi', category: 'Premium' },
+  { id: 8, name: 'Arjun Deshpande', email: 'arjun.dechpande@metro.metrotech.in', phone: '+91 9876543217', company: 'MetroTech Industries', businessType: 'Technology Sector', status: 'active', contactPerson: 'Arjun Deshpande', category: 'Regular' },
 ];
 
 export const DUMMY_QUOTES = [
@@ -116,3 +124,128 @@ export const DASHBOARD_STATS = {
   revenue: 125000,
   completedJobs: 87,
 };
+
+// ============================================
+// ADD CLIENT FORM OPTIONS
+// ============================================
+
+// Business Type Options
+export const BUSINESS_TYPES = [
+  { value: 'sole_proprietorship', label: 'Sole Proprietorship' },
+  { value: 'partnership', label: 'Partnership' },
+  { value: 'llc', label: 'LLC' },
+  { value: 'corporation', label: 'Corporation' },
+  { value: 'nonprofit', label: 'Non-Profit' },
+  { value: 'government', label: 'Government' },
+  { value: 'other', label: 'Other' },
+];
+
+// Designation/Role Options
+export const DESIGNATION_ROLES = [
+  { value: 'owner', label: 'Owner' },
+  { value: 'ceo', label: 'CEO' },
+  { value: 'manager', label: 'Manager' },
+  { value: 'director', label: 'Director' },
+  { value: 'accountant', label: 'Accountant' },
+  { value: 'admin', label: 'Admin' },
+  { value: 'hr', label: 'HR' },
+  { value: 'other', label: 'Other' },
+];
+
+// State Options (Indian States)
+export const STATES = [
+  { value: 'andhra_pradesh', label: 'Andhra Pradesh' },
+  { value: 'arunachal_pradesh', label: 'Arunachal Pradesh' },
+  { value: 'assam', label: 'Assam' },
+  { value: 'bihar', label: 'Bihar' },
+  { value: 'chhattisgarh', label: 'Chhattisgarh' },
+  { value: 'delhi', label: 'Delhi' },
+  { value: 'goa', label: 'Goa' },
+  { value: 'gujarat', label: 'Gujarat' },
+  { value: 'haryana', label: 'Haryana' },
+  { value: 'himachal_pradesh', label: 'Himachal Pradesh' },
+  { value: 'jharkhand', label: 'Jharkhand' },
+  { value: 'karnataka', label: 'Karnataka' },
+  { value: 'kerala', label: 'Kerala' },
+  { value: 'madhya_pradesh', label: 'Madhya Pradesh' },
+  { value: 'maharashtra', label: 'Maharashtra' },
+  { value: 'manipur', label: 'Manipur' },
+  { value: 'meghalaya', label: 'Meghalaya' },
+  { value: 'mizoram', label: 'Mizoram' },
+  { value: 'nagaland', label: 'Nagaland' },
+  { value: 'odisha', label: 'Odisha' },
+  { value: 'punjab', label: 'Punjab' },
+  { value: 'rajasthan', label: 'Rajasthan' },
+  { value: 'sikkim', label: 'Sikkim' },
+  { value: 'tamil_nadu', label: 'Tamil Nadu' },
+  { value: 'telangana', label: 'Telangana' },
+  { value: 'tripura', label: 'Tripura' },
+  { value: 'uttar_pradesh', label: 'Uttar Pradesh' },
+  { value: 'uttarakhand', label: 'Uttarakhand' },
+  { value: 'west_bengal', label: 'West Bengal' },
+];
+
+// Country Options
+export const COUNTRIES = [
+  { value: 'india', label: 'India' },
+  { value: 'usa', label: 'USA' },
+  { value: 'uk', label: 'United Kingdom' },
+  { value: 'australia', label: 'Australia' },
+  { value: 'canada', label: 'Canada' },
+  { value: 'germany', label: 'Germany' },
+  { value: 'france', label: 'France' },
+  { value: 'japan', label: 'Japan' },
+  { value: 'singapore', label: 'Singapore' },
+  { value: 'uae', label: 'UAE' },
+  { value: 'other', label: 'Other' },
+];
+
+// Payment Term Options
+export const PAYMENT_TERMS = [
+  { value: 'due_on_receipt', label: 'Due on Receipt' },
+  { value: 'net_7', label: 'Net 7' },
+  { value: 'net_15', label: 'Net 15' },
+  { value: 'net_30', label: 'Net 30' },
+  { value: 'net_45', label: 'Net 45' },
+  { value: 'net_60', label: 'Net 60' },
+  { value: 'net_90', label: 'Net 90' },
+];
+
+// Currency Options
+export const CURRENCIES = [
+  { value: 'inr', label: 'INR - Indian Rupee' },
+  { value: 'usd', label: 'USD - US Dollar' },
+  { value: 'eur', label: 'EUR - Euro' },
+  { value: 'gbp', label: 'GBP - British Pound' },
+  { value: 'aud', label: 'AUD - Australian Dollar' },
+  { value: 'cad', label: 'CAD - Canadian Dollar' },
+  { value: 'sgd', label: 'SGD - Singapore Dollar' },
+  { value: 'aed', label: 'AED - UAE Dirham' },
+];
+
+// Tax Percentage Options
+export const TAX_PERCENTAGES = [
+  { value: '0', label: '0%' },
+  { value: '5', label: '5%' },
+  { value: '12', label: '12%' },
+  { value: '18', label: '18%' },
+  { value: '28', label: '28%' },
+];
+
+// Client Category Options
+export const CLIENT_CATEGORIES = [
+  { value: 'regular', label: 'Regular' },
+  { value: 'premium', label: 'Premium' },
+  { value: 'vip', label: 'VIP' },
+  { value: 'new', label: 'New' },
+  { value: 'corporate', label: 'Corporate' },
+  { value: 'government', label: 'Government' },
+];
+
+// Client Status Options
+export const CLIENT_STATUSES = [
+  { value: 'Active', label: 'Active' },
+  { value: 'Inactive', label: 'Inactive' },
+  { value: 'Lead', label: 'Lead' },
+  { value: 'Prospect', label: 'Prospect' },
+];

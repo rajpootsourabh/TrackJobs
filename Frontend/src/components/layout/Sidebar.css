@@ -1,82 +1,139 @@
+/* ============================================
+   SIDEBAR STYLES - TRAKJOBS
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Sidebar Container */
 .sidebar {
   position: fixed;
+  width: 258px;
+  height: 100vh;
   left: 0;
   top: 0;
-  bottom: 0;
-  width: 250px;
-  background-color: var(--sidebar-bg);
-  display: flex;
-  flex-direction: column;
+  background: #183B59;
+  font-family: 'Poppins', sans-serif;
   z-index: 100;
 }
 
+/* Sidebar Header */
 .sidebar-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.sidebar-logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: white;
-  margin: 0;
-}
-
-.sidebar-nav {
-  flex: 1;
-  padding: 1rem 0;
-  overflow-y: auto;
-}
-
-.sidebar-menu {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.sidebar-menu-item {
-  margin-bottom: 0.25rem;
-}
-
-.sidebar-link {
+  width: 258px;
+  height: 76px;
+  background: #0D2D44;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
-  color: var(--sidebar-text);
+  padding-left: 20px;
+}
+
+.logo {
+  font-family: 'Poppins', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 25px;
+  line-height: 18px;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+/* Navigation Menu */
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0;
+  gap: 13px;
+  width: 258px;
+  margin-top: 2px;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 6px 20px;
+  gap: 17px;
+  width: 258px;
+  height: 33px;
+  cursor: pointer;
+  transition: background 0.3s ease;
   text-decoration: none;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  border-left: 3px solid transparent;
 }
 
-.sidebar-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+.nav-item:hover {
+  background: #2A5377;
 }
 
-.sidebar-link-active {
-  background-color: rgba(37, 99, 235, 0.2);
-  border-left-color: var(--primary-color);
-  color: white;
+.nav-item.active {
+  background: #2A5377;
 }
 
-.sidebar-icon {
-  font-size: 1.25rem;
-  width: 1.5rem;
-  text-align: center;
+.nav-item-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0;
+  gap: 10px;
+  height: 20px;
 }
 
-.sidebar-label {
-  font-size: 0.9375rem;
-  font-weight: 500;
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.sidebar-footer {
-  padding: 1rem 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+.nav-icon svg {
+  width: 100%;
+  height: 100%;
 }
 
-.sidebar-logout:hover {
-  background-color: rgba(239, 68, 68, 0.2);
+.nav-text {
+  font-family: 'Poppins', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 18px;
+  color: #FFFFFF;
+  white-space: nowrap;
+}
+
+/* Active state styling */
+.nav-item.active .nav-text {
+  color: #D3DFEB;
+}
+
+.nav-item.active .nav-icon svg path,
+.nav-item.active .nav-icon svg circle,
+.nav-item.active .nav-icon svg rect {
+  fill: #D3DFEB;
+}
+
+/* ============================================
+   RESPONSIVE SIDEBAR
+   ============================================ */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 220px;
+  }
+  
+  .sidebar-header {
+    width: 220px;
+  }
+  
+  .nav-menu {
+    width: 220px;
+  }
+  
+  .nav-item {
+    width: 220px;
+  }
 }
 
 @media (max-width: 768px) {

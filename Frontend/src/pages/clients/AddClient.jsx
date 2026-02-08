@@ -1,10 +1,31 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useClient } from '../../hooks/useClients';
+import {
+  BUSINESS_TYPES,
+  DESIGNATION_ROLES,
+  STATES,
+  COUNTRIES,
+  PAYMENT_TERMS,
+  CURRENCIES,
+  TAX_PERCENTAGES,
+  CLIENT_CATEGORIES,
+  CLIENT_STATUSES,
+} from '../../utils/constants';
 import './Clients.css';
 
 const AddClient = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+  
+  // Use the client hook for API integration
+  const { 
+    create, 
+    saving, 
+    error: hookError 
+  } = useClient();
+  
   const [formData, setFormData] = useState({
     // Basic Business Information
     businessName: '',
@@ -69,12 +90,18 @@ const AddClient = () => {
       newErrors.contactPersonName = 'Contact person name is required';
     }
 
-    if (!formData.addressLine1.trim()) {
-      newErrors.addressLine1 = 'Address line 1 is required';
+    if (!formData.emailAddress.trim()) {
+      newErrors.emailAddress = 'Email address is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailAddress)) {
+      newErrors.emailAddress = 'Please enter a valid email address';
     }
 
-    if (!formData.addressLine2.trim()) {
-      newErrors.addressLine2 = 'Address line 2 is required';
+    if (!formData.mobileNumber.trim()) {
+      newErrors.mobileNumber = 'Mobile number is required';
+    }
+
+    if (!formData.addressLine1.trim()) {
+      newErrors.addressLine1 = 'Address line 1 is required';
     }
 
     setErrors(newErrors);
@@ -86,19 +113,101 @@ const AddClient = () => {
 
     if (!validateForm()) return;
 
-    setLoading(true);
+    setApiError(null);
+    setSuccessMessage(null);
 
-    // Simulate API call
-    console.log('Add client form submitted:', formData);
+    try {
+      // Prepare client data for API
+      const clientData = {
+        businessName: formData.businessName,
+        businessType: formData.businessType,
+        industry: formData.industry,
+        businessRegistrationNumber: formData.businessRegistrationNumber,
+        contactPersonName: formData.contactPersonName,
+        designationRole: formData.designationRole,
+        emailAddress: formData.emailAddress,
+        mobileNumber: formData.mobileNumber,
+        alternateMobileNumber: formData.alternateMobileNumber,
+        addressLine1: formData.addressLine1,
+        addressLine2: formData.addressLine2,
+        city: formData.city,
+        state: formData.state,
+        country: formData.country,
+        pinZipcode: formData.pinZipcode,
+        billingName: formData.billingName,
+        sameAsBillingAddress: formData.sameAsBillingAddress,
+        paymentTerm: formData.paymentTerm,
+        preferredCurrency: formData.preferredCurrency,
+        taxPercentage: formData.taxPercentage,
+        websiteUrl: formData.websiteUrl,
+        clientCategory: formData.clientCategory,
+        notesRemark: formData.notesRemark,
+        clientStatus: formData.clientStatus,
+      };
 
-    setTimeout(() => {
-      setLoading(false);
-      if (createQuote) {
-        navigate('/quotes/create');
-      } else {
-        navigate('/clients');
+      // Call the API to create the client
+      const response = await create(clientData);
+      
+      if (response && response.client) {
+        const newClient = response.client;
+        setSuccessMessage('Client created successfully!');
+        
+        // Navigate after a brief delay to show success message
+        setTimeout(() => {
+          if (createQuote) {
+            navigate('/quotes/create', { state: { clientId: newClient.id } });
+          } else {
+            navigate('/clients');
+          }
+        }, 1000);
       }
-    }, 1000);
+    } catch (err) {
+      // Handle validation errors from API
+      if (err.errors && typeof err.errors === 'object') {
+        // Map API field names (snake_case) to form field names (camelCase)
+        const fieldMapping = {
+          business_name: 'businessName',
+          business_type: 'businessType',
+          industry: 'industry',
+          business_registration_number: 'businessRegistrationNumber',
+          contact_person_name: 'contactPersonName',
+          designation_role: 'designationRole',
+          email: 'emailAddress',
+          mobile_number: 'mobileNumber',
+          alternate_mobile_number: 'alternateMobileNumber',
+          address_line_1: 'addressLine1',
+          address_line_2: 'addressLine2',
+          city: 'city',
+          state: 'state',
+          country: 'country',
+          pin_zipcode: 'pinZipcode',
+          billing_name: 'billingName',
+          same_as_billing_address: 'sameAsBillingAddress',
+          payment_term: 'paymentTerm',
+          preferred_currency: 'preferredCurrency',
+          tax_percentage: 'taxPercentage',
+          website_url: 'websiteUrl',
+          client_category: 'clientCategory',
+          notes_remark: 'notesRemark',
+          status: 'clientStatus',
+        };
+
+        const fieldErrors = {};
+        Object.entries(err.errors).forEach(([apiField, errorMessages]) => {
+          const formField = fieldMapping[apiField] || apiField;
+          // API might return array of errors or single string
+          fieldErrors[formField] = Array.isArray(errorMessages) 
+            ? errorMessages[0] 
+            : errorMessages;
+        });
+        
+        setErrors(fieldErrors);
+        setApiError(err.message || 'Please fix the highlighted errors below.');
+      } else {
+        setApiError(err.message || 'Failed to create client. Please try again.');
+      }
+      console.error('Error creating client:', err);
+    }
   };
 
   const handleCancel = () => {
@@ -123,6 +232,25 @@ const AddClient = () => {
         <h1 className="page-main-title">New Client</h1>
         <p className="page-subtitle">Add a new client by filling in their details below.</p>
       </div>
+
+      {/* Success Message */}
+      {successMessage && (
+        <div className="success-message-banner">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="10" cy="10" r="9" fill="#DCFCE7"/>
+            <path d="M6 10L9 13L14 7" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <p>{successMessage}</p>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {(apiError || hookError) && (
+        <div className="error-message-banner">
+          <p>{apiError || hookError}</p>
+          <button onClick={() => setApiError(null)} className="dismiss-btn">Dismiss</button>
+        </div>
+      )}
 
       <form onSubmit={(e) => handleSubmit(e, false)}>
         {/* Section 1: Basic Business Information */}
@@ -159,11 +287,11 @@ const AddClient = () => {
                     className={`field-select ${errors.businessType ? 'error' : ''}`}
                   >
                     <option value="">Select</option>
-                    <option value="sole_proprietorship">Sole Proprietorship</option>
-                    <option value="partnership">Partnership</option>
-                    <option value="llc">LLC</option>
-                    <option value="corporation">Corporation</option>
-                    <option value="nonprofit">Non-Profit</option>
+                    {BUSINESS_TYPES.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
                   </select>
                   <span className="select-arrow">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -233,11 +361,11 @@ const AddClient = () => {
                     className="field-select"
                   >
                     <option value="">Select</option>
-                    <option value="owner">Owner</option>
-                    <option value="manager">Manager</option>
-                    <option value="director">Director</option>
-                    <option value="accountant">Accountant</option>
-                    <option value="other">Other</option>
+                    {DESIGNATION_ROLES.map((role) => (
+                      <option key={role.value} value={role.value}>
+                        {role.label}
+                      </option>
+                    ))}
                   </select>
                   <span className="select-arrow">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -347,11 +475,11 @@ const AddClient = () => {
                     className="field-select"
                   >
                     <option value="">Select</option>
-                    <option value="maharashtra">Maharashtra</option>
-                    <option value="karnataka">Karnataka</option>
-                    <option value="delhi">Delhi</option>
-                    <option value="tamil_nadu">Tamil Nadu</option>
-                    <option value="gujarat">Gujarat</option>
+                    {STATES.map((state) => (
+                      <option key={state.value} value={state.value}>
+                        {state.label}
+                      </option>
+                    ))}
                   </select>
                   <span className="select-arrow">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -372,11 +500,11 @@ const AddClient = () => {
                     className="field-select"
                   >
                     <option value="">Select</option>
-                    <option value="india">India</option>
-                    <option value="usa">USA</option>
-                    <option value="uk">UK</option>
-                    <option value="australia">Australia</option>
-                    <option value="canada">Canada</option>
+                    {COUNTRIES.map((country) => (
+                      <option key={country.value} value={country.value}>
+                        {country.label}
+                      </option>
+                    ))}
                   </select>
                   <span className="select-arrow">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -443,11 +571,11 @@ const AddClient = () => {
                     className="field-select"
                   >
                     <option value="">Select</option>
-                    <option value="net_15">Net 15</option>
-                    <option value="net_30">Net 30</option>
-                    <option value="net_45">Net 45</option>
-                    <option value="net_60">Net 60</option>
-                    <option value="due_on_receipt">Due on Receipt</option>
+                    {PAYMENT_TERMS.map((term) => (
+                      <option key={term.value} value={term.value}>
+                        {term.label}
+                      </option>
+                    ))}
                   </select>
                   <span className="select-arrow">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -466,11 +594,11 @@ const AddClient = () => {
                     className="field-select"
                   >
                     <option value="">Select</option>
-                    <option value="inr">INR - Indian Rupee</option>
-                    <option value="usd">USD - US Dollar</option>
-                    <option value="eur">EUR - Euro</option>
-                    <option value="gbp">GBP - British Pound</option>
-                    <option value="aud">AUD - Australian Dollar</option>
+                    {CURRENCIES.map((currency) => (
+                      <option key={currency.value} value={currency.value}>
+                        {currency.label}
+                      </option>
+                    ))}
                   </select>
                   <span className="select-arrow">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -491,11 +619,11 @@ const AddClient = () => {
                     className="field-select"
                   >
                     <option value="">Select</option>
-                    <option value="0">0%</option>
-                    <option value="5">5%</option>
-                    <option value="12">12%</option>
-                    <option value="18">18%</option>
-                    <option value="28">28%</option>
+                    {TAX_PERCENTAGES.map((tax) => (
+                      <option key={tax.value} value={tax.value}>
+                        {tax.label}
+                      </option>
+                    ))}
                   </select>
                   <span className="select-arrow">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -527,8 +655,8 @@ const AddClient = () => {
                     className="field-select"
                   >
                     <option value="">Select</option>
-                    <option value="https">https://</option>
-                    <option value="http">http://</option>
+                    <option value="https://">https://</option>
+                    <option value="http://">http://</option>
                   </select>
                   <span className="select-arrow">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -565,10 +693,11 @@ const AddClient = () => {
                     className="field-select"
                   >
                     <option value="">Select</option>
-                    <option value="regular">Regular</option>
-                    <option value="premium">Premium</option>
-                    <option value="vip">VIP</option>
-                    <option value="new">New</option>
+                    {CLIENT_CATEGORIES.map((category) => (
+                      <option key={category.value} value={category.value}>
+                        {category.label}
+                      </option>
+                    ))}
                   </select>
                   <span className="select-arrow">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -609,10 +738,11 @@ const AddClient = () => {
                     onChange={handleChange}
                     className="field-select"
                   >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                    <option value="Lead">Lead</option>
-                    <option value="Prospect">Prospect</option>
+                    {CLIENT_STATUSES.map((status) => (
+                      <option key={status.value} value={status.value}>
+                        {status.label}
+                      </option>
+                    ))}
                   </select>
                   <span className="select-arrow">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -628,19 +758,26 @@ const AddClient = () => {
 
         {/* Action Buttons */}
         <div className="form-actions-bar">
-          <button type="button" className="btn-cancel" onClick={handleCancel}>
+          <button type="button" className="btn-cancel" onClick={handleCancel} disabled={saving}>
             Cancel
           </button>
-          <button type="submit" className="btn-save" disabled={loading}>
-            {loading ? 'Saving...' : 'Save'}
+          <button type="submit" className="btn-save" disabled={saving}>
+            {saving ? (
+              <>
+                <span className="btn-spinner"></span>
+                Saving...
+              </>
+            ) : (
+              'Save'
+            )}
           </button>
           <button
             type="button"
             className="btn-save-create"
             onClick={(e) => handleSubmit(e, true)}
-            disabled={loading}
+            disabled={saving}
           >
-            Save & Create Quote
+            {saving ? 'Saving...' : 'Save & Create Quote'}
           </button>
         </div>
       </form>

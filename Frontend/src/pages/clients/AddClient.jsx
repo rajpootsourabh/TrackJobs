@@ -10,7 +10,6 @@ import {
   CURRENCIES,
   TAX_PERCENTAGES,
   CLIENT_CATEGORIES,
-  CLIENT_STATUSES,
 } from '../../utils/constants';
 import './Clients.css';
 
@@ -27,42 +26,77 @@ const AddClient = () => {
   } = useClient();
   
   const [formData, setFormData] = useState({
-    // Basic Business Information
+    // Customer Type
+    customerType: 'Commercial',
+    // Basic Business Information (Commercial)
     businessName: '',
     businessType: '',
     industry: '',
     businessRegistrationNumber: '',
-    // Primary Contact Information
+    // Primary Contact Information (Commercial)
     contactPersonName: '',
     designationRole: '',
     emailAddress: '',
     mobileNumber: '',
     alternateMobileNumber: '',
-    // Business Address
+    // Business Address (Commercial)
     addressLine1: '',
     addressLine2: '',
     city: '',
     state: '',
     country: '',
     pinZipcode: '',
-    // Billing & Financial Details
+    // Billing & Financial Details (Commercial)
     billingName: '',
     sameAsBillingAddress: false,
     paymentTerm: '',
     preferredCurrency: '',
     taxPercentage: '',
-    // Additional Business Details
+    // Additional Business Details (Commercial)
     websiteUrl: '',
     uploadLogo: null,
     clientCategory: '',
     notesRemark: '',
-    // Status & Actions
+    // Personal Details (Residential)
+    firstName: '',
+    lastName: '',
+    address: '',
+    // Availability Schedule (Both)
+    availableDays: {
+      monday: false,
+      tuesday: false,
+      wednesday: false,
+      thursday: false,
+      friday: false,
+      saturday: false,
+      sunday: false,
+    },
+    serviceType: '',
     clientStatus: 'Active',
+    preferredStartTime: '',
+    preferredEndTime: '',
+    hasLunchBreak: false,
+    activeSchedule: false,
+    availabilityNotes: '',
   });
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
+    
+    // Handle availableDays checkboxes
+    if (name.startsWith('availableDays.')) {
+      const day = name.split('.')[1];
+      setFormData((prev) => ({
+        ...prev,
+        availableDays: {
+          ...prev.availableDays,
+          [day]: checked,
+        },
+      }));
+      return;
+    }
+    
     setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : type === 'file' ? files[0] : value,
@@ -78,30 +112,42 @@ const AddClient = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.businessName.trim()) {
-      newErrors.businessName = 'Business name is required';
-    }
+    if (formData.customerType === 'Commercial') {
+      // Commercial validation
+      if (!formData.businessName.trim()) {
+        newErrors.businessName = 'Business name is required';
+      }
 
-    if (!formData.businessType) {
-      newErrors.businessType = 'Business type is required';
-    }
+      if (!formData.businessType) {
+        newErrors.businessType = 'Business type is required';
+      }
 
-    if (!formData.contactPersonName.trim()) {
-      newErrors.contactPersonName = 'Contact person name is required';
-    }
+      if (!formData.contactPersonName.trim()) {
+        newErrors.contactPersonName = 'Contact person name is required';
+      }
 
-    if (!formData.emailAddress.trim()) {
-      newErrors.emailAddress = 'Email address is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailAddress)) {
-      newErrors.emailAddress = 'Please enter a valid email address';
-    }
+      if (!formData.emailAddress.trim()) {
+        newErrors.emailAddress = 'Email address is required';
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailAddress)) {
+        newErrors.emailAddress = 'Please enter a valid email address';
+      }
 
-    if (!formData.mobileNumber.trim()) {
-      newErrors.mobileNumber = 'Mobile number is required';
-    }
+      if (!formData.mobileNumber.trim()) {
+        newErrors.mobileNumber = 'Mobile number is required';
+      }
 
-    if (!formData.addressLine1.trim()) {
-      newErrors.addressLine1 = 'Address line 1 is required';
+      if (!formData.addressLine1.trim()) {
+        newErrors.addressLine1 = 'Address line 1 is required';
+      }
+    } else {
+      // Residential validation
+      if (!formData.firstName.trim()) {
+        newErrors.firstName = 'First name is required';
+      }
+
+      if (formData.emailAddress && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailAddress)) {
+        newErrors.emailAddress = 'Please enter a valid email address';
+      }
     }
 
     setErrors(newErrors);
@@ -119,6 +165,8 @@ const AddClient = () => {
     try {
       // Prepare client data for API
       const clientData = {
+        customerType: formData.customerType,
+        // Commercial fields
         businessName: formData.businessName,
         businessType: formData.businessType,
         industry: formData.industry,
@@ -142,7 +190,19 @@ const AddClient = () => {
         websiteUrl: formData.websiteUrl,
         clientCategory: formData.clientCategory,
         notesRemark: formData.notesRemark,
+        // Residential fields
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        address: formData.address,
+        // Availability Schedule (both)
+        availableDays: formData.availableDays,
+        serviceType: formData.serviceType,
         clientStatus: formData.clientStatus,
+        preferredStartTime: formData.preferredStartTime,
+        preferredEndTime: formData.preferredEndTime,
+        hasLunchBreak: formData.hasLunchBreak,
+        activeSchedule: formData.activeSchedule,
+        availabilityNotes: formData.availabilityNotes,
       };
 
       // Call the API to create the client
@@ -229,8 +289,31 @@ const AddClient = () => {
 
       {/* Page Header */}
       <div className="page-header-section">
-        <h1 className="page-main-title">New Client</h1>
-        <p className="page-subtitle">Add a new client by filling in their details below.</p>
+        <div className="page-header-left">
+          <h1 className="page-main-title">Add New Customer</h1>
+          <p className="page-subtitle">Add a new customer by filling in their details below.</p>
+        </div>
+        <div className="page-header-right">
+          <span className="choose-label">Choose Any One:</span>
+          <div className="customer-type-toggle">
+            <button
+              type="button"
+              className={`type-btn ${formData.customerType === 'Commercial' ? 'active' : ''}`}
+              onClick={() => setFormData(prev => ({ ...prev, customerType: 'Commercial' }))}
+            >
+              <span>Commercial</span>
+              <span className={`radio-indicator ${formData.customerType === 'Commercial' ? 'selected' : ''}`}></span>
+            </button>
+            <button
+              type="button"
+              className={`type-btn ${formData.customerType === 'Residential' ? 'active' : ''}`}
+              onClick={() => setFormData(prev => ({ ...prev, customerType: 'Residential' }))}
+            >
+              <span>Residential</span>
+              <span className={`radio-indicator ${formData.customerType === 'Residential' ? 'selected' : ''}`}></span>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Success Message */}
@@ -253,12 +336,15 @@ const AddClient = () => {
       )}
 
       <form onSubmit={(e) => handleSubmit(e, false)}>
-        {/* Section 1: Basic Business Information */}
-        <div className="form-section-card">
-          <div className="section-header-row">
-            <div className="section-number">1</div>
-            <h2 className="section-title-text">Basic Business Information</h2>
-          </div>
+        {/* Commercial Sections */}
+        {formData.customerType === 'Commercial' && (
+          <>
+            {/* Section 1: Basic Business Information */}
+            <div className="form-section-card">
+              <div className="section-header-row">
+                <div className="section-number">1</div>
+                <h2 className="section-title-text">Basic Business Information</h2>
+              </div>
           <div className="form-fields-container">
             <div className="form-row">
               <div className="form-field">
@@ -720,41 +806,430 @@ const AddClient = () => {
             </div>
           </div>
         </div>
+          </>
+        )}
 
-        {/* Section 6: Status & Actions */}
-        <div className="form-section-card">
-          <div className="section-header-row">
-            <div className="section-number">6</div>
-            <h2 className="section-title-text">Status & Actions</h2>
-          </div>
-          <div className="form-fields-container">
-            <div className="form-row">
-              <div className="form-field">
-                <label className="field-label">Client Status</label>
-                <div className="select-wrapper">
-                  <select
-                    name="clientStatus"
-                    value={formData.clientStatus}
+        {/* Residential Section: Personal Details */}
+        {formData.customerType === 'Residential' && (
+          <div className="form-section-card">
+            <div className="section-header-row">
+              <div className="section-number">1</div>
+              <h2 className="section-title-text">Personal Details</h2>
+            </div>
+            <div className="form-fields-container">
+              <div className="form-row">
+                <div className="form-field">
+                  <label className="field-label">
+                    First Name<span className="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    placeholder=""
+                    value={formData.firstName}
                     onChange={handleChange}
-                    className="field-select"
-                  >
-                    {CLIENT_STATUSES.map((status) => (
-                      <option key={status.value} value={status.value}>
-                        {status.label}
-                      </option>
-                    ))}
-                  </select>
-                  <span className="select-arrow">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M3 4.5L6 7.5L9 4.5" stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </span>
+                    className={`field-input ${errors.firstName ? 'error' : ''}`}
+                  />
+                  {errors.firstName && <span className="error-text">{errors.firstName}</span>}
+                </div>
+                <div className="form-field">
+                  <label className="field-label">Last Name</label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    placeholder=""
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    className="field-input"
+                  />
                 </div>
               </div>
-              <div className="form-field"></div>
+              <div className="form-row">
+                <div className="form-field">
+                  <label className="field-label">Email Address</label>
+                  <input
+                    type="email"
+                    name="emailAddress"
+                    placeholder=""
+                    value={formData.emailAddress}
+                    onChange={handleChange}
+                    className="field-input"
+                  />
+                </div>
+                <div className="form-field">
+                  <label className="field-label">Mobile Number</label>
+                  <input
+                    type="tel"
+                    name="mobileNumber"
+                    placeholder=""
+                    value={formData.mobileNumber}
+                    onChange={handleChange}
+                    className="field-input"
+                  />
+                </div>
+              </div>
+              <div className="form-row full-width-row">
+                <div className="form-field full-width">
+                  <label className="field-label">Address</label>
+                  <input
+                    type="text"
+                    name="address"
+                    placeholder=""
+                    value={formData.address}
+                    onChange={handleChange}
+                    className="field-input"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Section 6: Availability Schedule (for Commercial) */}
+        {formData.customerType === 'Commercial' && (
+          <div className="form-section-card">
+            <div className="section-header-row">
+              <div className="section-number">6</div>
+              <h2 className="section-title-text">Availability Schedule</h2>
+            </div>
+            <div className="form-fields-container">
+              {/* Row 1: Available Days + Service Type */}
+              <div className="form-row">
+                <div className="form-field">
+                  <label className="field-label">Available Days</label>
+                  <div className="available-days-container">
+                    <label className="day-checkbox">
+                      <input
+                        type="checkbox"
+                        name="availableDays.monday"
+                        checked={formData.availableDays.monday}
+                        onChange={handleChange}
+                      />
+                      <span>Monday</span>
+                    </label>
+                    <label className="day-checkbox">
+                      <input
+                        type="checkbox"
+                        name="availableDays.tuesday"
+                        checked={formData.availableDays.tuesday}
+                        onChange={handleChange}
+                      />
+                      <span>Tuesday</span>
+                    </label>
+                    <label className="day-checkbox">
+                      <input
+                        type="checkbox"
+                        name="availableDays.wednesday"
+                        checked={formData.availableDays.wednesday}
+                        onChange={handleChange}
+                      />
+                      <span>Wednesday</span>
+                    </label>
+                    <label className="day-checkbox">
+                      <input
+                        type="checkbox"
+                        name="availableDays.thursday"
+                        checked={formData.availableDays.thursday}
+                        onChange={handleChange}
+                      />
+                      <span>Thursday</span>
+                    </label>
+                  </div>
+                  <div className="available-days-container">
+                    <label className="day-checkbox">
+                      <input
+                        type="checkbox"
+                        name="availableDays.friday"
+                        checked={formData.availableDays.friday}
+                        onChange={handleChange}
+                      />
+                      <span>Friday</span>
+                    </label>
+                    <label className="day-checkbox">
+                      <input
+                        type="checkbox"
+                        name="availableDays.saturday"
+                        checked={formData.availableDays.saturday}
+                        onChange={handleChange}
+                      />
+                      <span>Saturday</span>
+                    </label>
+                    <label className="day-checkbox">
+                      <input
+                        type="checkbox"
+                        name="availableDays.sunday"
+                        checked={formData.availableDays.sunday}
+                        onChange={handleChange}
+                      />
+                      <span>Sunday</span>
+                    </label>
+                  </div>
+                </div>
+                <div className="form-field">
+                  <label className="field-label">Service Type</label>
+                  <div className="select-wrapper">
+                    <select
+                      name="serviceType"
+                      value={formData.serviceType}
+                      onChange={handleChange}
+                      className="field-select"
+                    >
+                      <option value="">Service Type</option>
+                      <option value="one-time">One-Time</option>
+                      <option value="recurring">Recurring</option>
+                      <option value="on-demand">On-Demand</option>
+                    </select>
+                    <span className="select-arrow">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M3 4.5L6 7.5L9 4.5" stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {/* Row 2: Preferred Start Time + Preferred End Time */}
+              <div className="form-row">
+                <div className="form-field">
+                  <label className="field-label">Preferred Start Time</label>
+                  <input
+                    type="text"
+                    name="preferredStartTime"
+                    placeholder=""
+                    value={formData.preferredStartTime}
+                    onChange={handleChange}
+                    className="field-input"
+                  />
+                </div>
+                <div className="form-field">
+                  <label className="field-label">Preferred End Time</label>
+                  <input
+                    type="text"
+                    name="preferredEndTime"
+                    placeholder=""
+                    value={formData.preferredEndTime}
+                    onChange={handleChange}
+                    className="field-input"
+                  />
+                </div>
+              </div>
+              {/* Row 3: Has Lunch Break checkbox alone */}
+              <div className="form-row">
+                <div className="form-field checkbox-field">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="hasLunchBreak"
+                      checked={formData.hasLunchBreak}
+                      onChange={handleChange}
+                      className="checkbox-input"
+                    />
+                    <span className="checkbox-text">Has Lunch Break</span>
+                  </label>
+                </div>
+                <div className="form-field"></div>
+              </div>
+              {/* Row 4: Availability Notes + Active Schedule */}
+              <div className="form-row">
+                <div className="form-field">
+                  <label className="field-label">Availability Notes</label>
+                  <input
+                    type="text"
+                    name="availabilityNotes"
+                    placeholder=""
+                    value={formData.availabilityNotes}
+                    onChange={handleChange}
+                    className="field-input"
+                  />
+                </div>
+                <div className="form-field checkbox-field align-center">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="activeSchedule"
+                      checked={formData.activeSchedule}
+                      onChange={handleChange}
+                      className="checkbox-input"
+                    />
+                    <span className="checkbox-text">Active Schedule</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Section 2: Availability Schedule (for Residential) */}
+        {formData.customerType === 'Residential' && (
+          <div className="form-section-card">
+            <div className="section-header-row">
+              <div className="section-number">2</div>
+              <h2 className="section-title-text">Availability Schedule</h2>
+            </div>
+            <div className="form-fields-container">
+              {/* Row 1: Available Days + Service Type */}
+              <div className="form-row">
+                <div className="form-field">
+                  <label className="field-label">Available Days</label>
+                  <div className="available-days-container">
+                    <label className="day-checkbox">
+                      <input
+                        type="checkbox"
+                        name="availableDays.monday"
+                        checked={formData.availableDays.monday}
+                        onChange={handleChange}
+                      />
+                      <span>Monday</span>
+                    </label>
+                    <label className="day-checkbox">
+                      <input
+                        type="checkbox"
+                        name="availableDays.tuesday"
+                        checked={formData.availableDays.tuesday}
+                        onChange={handleChange}
+                      />
+                      <span>Tuesday</span>
+                    </label>
+                    <label className="day-checkbox">
+                      <input
+                        type="checkbox"
+                        name="availableDays.wednesday"
+                        checked={formData.availableDays.wednesday}
+                        onChange={handleChange}
+                      />
+                      <span>Wednesday</span>
+                    </label>
+                    <label className="day-checkbox">
+                      <input
+                        type="checkbox"
+                        name="availableDays.thursday"
+                        checked={formData.availableDays.thursday}
+                        onChange={handleChange}
+                      />
+                      <span>Thursday</span>
+                    </label>
+                  </div>
+                  <div className="available-days-container">
+                    <label className="day-checkbox">
+                      <input
+                        type="checkbox"
+                        name="availableDays.friday"
+                        checked={formData.availableDays.friday}
+                        onChange={handleChange}
+                      />
+                      <span>Friday</span>
+                    </label>
+                    <label className="day-checkbox">
+                      <input
+                        type="checkbox"
+                        name="availableDays.saturday"
+                        checked={formData.availableDays.saturday}
+                        onChange={handleChange}
+                      />
+                      <span>Saturday</span>
+                    </label>
+                    <label className="day-checkbox">
+                      <input
+                        type="checkbox"
+                        name="availableDays.sunday"
+                        checked={formData.availableDays.sunday}
+                        onChange={handleChange}
+                      />
+                      <span>Sunday</span>
+                    </label>
+                  </div>
+                </div>
+                <div className="form-field">
+                  <label className="field-label">Service Type</label>
+                  <div className="select-wrapper">
+                    <select
+                      name="serviceType"
+                      value={formData.serviceType}
+                      onChange={handleChange}
+                      className="field-select"
+                    >
+                      <option value="">Service Type</option>
+                      <option value="one-time">One-Time</option>
+                      <option value="recurring">Recurring</option>
+                      <option value="on-demand">On-Demand</option>
+                    </select>
+                    <span className="select-arrow">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M3 4.5L6 7.5L9 4.5" stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {/* Row 2: Preferred Start Time + Preferred End Time */}
+              <div className="form-row">
+                <div className="form-field">
+                  <label className="field-label">Preferred Start Time</label>
+                  <input
+                    type="text"
+                    name="preferredStartTime"
+                    placeholder=""
+                    value={formData.preferredStartTime}
+                    onChange={handleChange}
+                    className="field-input"
+                  />
+                </div>
+                <div className="form-field">
+                  <label className="field-label">Preferred End Time</label>
+                  <input
+                    type="text"
+                    name="preferredEndTime"
+                    placeholder=""
+                    value={formData.preferredEndTime}
+                    onChange={handleChange}
+                    className="field-input"
+                  />
+                </div>
+              </div>
+              {/* Row 3: Has Lunch Break checkbox alone */}
+              <div className="form-row">
+                <div className="form-field checkbox-field">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="hasLunchBreak"
+                      checked={formData.hasLunchBreak}
+                      onChange={handleChange}
+                      className="checkbox-input"
+                    />
+                    <span className="checkbox-text">Has Lunch Break</span>
+                  </label>
+                </div>
+                <div className="form-field"></div>
+              </div>
+              {/* Row 4: Availability Notes + Active Schedule */}
+              <div className="form-row">
+                <div className="form-field">
+                  <label className="field-label">Availability Notes</label>
+                  <input
+                    type="text"
+                    name="availabilityNotes"
+                    placeholder=""
+                    value={formData.availabilityNotes}
+                    onChange={handleChange}
+                    className="field-input"
+                  />
+                </div>
+                <div className="form-field checkbox-field align-center">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="activeSchedule"
+                      checked={formData.activeSchedule}
+                      onChange={handleChange}
+                      className="checkbox-input"
+                    />
+                    <span className="checkbox-text">Active Schedule</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="form-actions-bar">

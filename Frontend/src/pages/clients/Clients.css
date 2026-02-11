@@ -669,7 +669,104 @@
    PAGE HEADER SECTION
    ============================================ */
 .page-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   padding: 0 0 20px 0;
+}
+
+.page-header-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.page-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.choose-label {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 18px;
+  color: #585858;
+}
+
+.customer-type-toggle {
+  display: flex;
+  gap: 12px;
+}
+
+.type-btn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  gap: 18px;
+  width: 170px;
+  height: 45px;
+  background: #FFFFFF;
+  border: 1px solid #D2D2D2;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 18px;
+  color: #AEAFB0;
+  transition: all 0.2s ease;
+}
+
+.type-btn.active {
+  border: 1px solid #3574BB;
+  font-weight: 600;
+  color: #226AD3;
+}
+
+.type-btn span:first-child {
+  flex: 1;
+}
+
+.radio-indicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #E0E1E1;
+  position: relative;
+}
+
+.radio-indicator::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #FFFFFF;
+}
+
+.radio-indicator.selected {
+  background: #226AD3;
+}
+
+.radio-indicator.selected::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #226AD3;
+}
+
+.radio-indicator.selected::before {
+  background: #FFFFFF;
 }
 
 .page-main-title {
@@ -748,6 +845,16 @@
   flex-direction: column;
   gap: 0;
   position: relative;
+}
+
+/* Full width row for Residential form */
+.full-width-row {
+  display: flex;
+}
+
+.form-field.full-width {
+  flex: 1;
+  width: 100%;
 }
 
 /* ============================================
@@ -861,6 +968,10 @@
   padding-top: 20px;
 }
 
+.checkbox-field.align-center {
+  padding-top: 30px;
+}
+
 .checkbox-label {
   display: flex;
   align-items: center;
@@ -869,20 +980,56 @@
 }
 
 .checkbox-input {
-  width: 14px;
-  height: 14px;
-  border: 1px solid rgba(108, 106, 106, 0.79);
-  border-radius: 2px;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #B2B3C0;
+  border-radius: 4px;
   background: #FFFFFF;
   cursor: pointer;
   accent-color: #226AD3;
 }
 
 .checkbox-text {
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 400;
-  line-height: 14px;
+  line-height: 18px;
   color: #000000;
+}
+
+/* ============================================
+   AVAILABLE DAYS CHECKBOXES
+   ============================================ */
+.available-days-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.day-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #000000;
+}
+
+.day-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #B2B3C0;
+  border-radius: 3px;
+  background: #FFFFFF;
+  cursor: pointer;
+  accent-color: #226AD3;
+}
+
+.day-checkbox span {
+  font-size: 14px;
+  line-height: 18px;
 }
 
 /* ============================================
@@ -915,12 +1062,14 @@
   align-items: center;
   justify-content: center;
   padding: 10px 40px;
-  background: #3B7080;
+  width: 175px;
+  height: 25px;
+  background: #DDDDDD;
   border-radius: 27px;
   font-size: 12.62px;
   font-weight: 300;
   line-height: 15px;
-  color: #FFFFFF;
+  color: #000000;
   cursor: pointer;
 }
 
